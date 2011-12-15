@@ -30,6 +30,20 @@ except ImportError:
     import json
 
 
+class NextToken(object):
+    def __init__(self, connection=None):
+        """
+        Parses the NextToken field describe_alarms.
+        """
+        self.connection = connection
+
+    def startElement(self, name, attrs, connection):
+        pass
+
+    def endElement(self, name, value, connection):
+        if name == 'NextToken':
+            self.next_token = value
+
 class MetricAlarms(list):
     def __init__(self, connection=None):
         """
@@ -46,7 +60,6 @@ class MetricAlarms(list):
 
     def endElement(self, name, value, connection):
         pass
-
 
 class MetricAlarm(object):
 

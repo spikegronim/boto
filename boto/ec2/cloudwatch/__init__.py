@@ -143,7 +143,7 @@ except ImportError:
 
 from boto.connection import AWSQueryConnection
 from boto.ec2.cloudwatch.metric import Metric
-from boto.ec2.cloudwatch.alarm import MetricAlarm, MetricAlarms, AlarmHistoryItem
+from boto.ec2.cloudwatch.alarm import MetricAlarm, MetricAlarms, AlarmHistoryItem, NextToken
 from boto.ec2.cloudwatch.datapoint import Datapoint
 from boto.regioninfo import RegionInfo
 import boto
@@ -477,8 +477,11 @@ class CloudWatchConnection(AWSQueryConnection):
             params['NextToken'] = next_token
         if state_value:
             params['StateValue'] = state_value
-        return self.get_list('DescribeAlarms', params,
-                             [('MetricAlarms', MetricAlarms)])[0]
+        result = self.get_list('DescribeAlarms', params,
+                             [('MetricAlarms', MetricAlarms), ('NextToken', NextToken)])
+        if len(result) > 1:
+            result[0].next_token = result[1].next_token
+        return result[0]
 
     def describe_alarm_history(self, alarm_name=None,
                                start_date=None, end_date=None,
